@@ -146,6 +146,7 @@
     line-height: 1.15;
   }
   .hero h1 .accent{ color: var(--purple); }
+  .hero h1 .role-wrap{ display:inline-block; min-width: 1px; }
   .hero p.lede{
     margin-top: 16px;
     max-width: 60ch;
@@ -229,12 +230,71 @@
   }
 
   /* ---------- projects ---------- */
+  .view-toggle{
+    display:flex;
+    gap: 6px;
+    margin-left: auto;
+  }
+  .view-toggle button{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--fg-mute);
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: color .15s ease, border-color .15s ease, background .15s ease;
+  }
+  .view-toggle button:hover{ color: var(--fg); border-color: var(--cyan); }
+  .view-toggle button.active{
+    color: var(--bg);
+    background: var(--purple);
+    border-color: var(--purple);
+  }
+
   .projects{
     display:grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
   }
   @media (max-width: 640px){ .projects{ grid-template-columns: 1fr; } }
+
+  /* carousel mode */
+  .projects.carousel{
+    display:flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .projects.carousel::-webkit-scrollbar{ height: 6px; }
+  .projects.carousel::-webkit-scrollbar-thumb{ background: var(--border); border-radius: 4px; }
+  .projects.carousel .card{
+    flex: 0 0 clamp(240px, 70%, 340px);
+    scroll-snap-align: start;
+  }
+
+  .carousel-nav{
+    display:none;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .carousel-nav.show{ display:flex; }
+  .carousel-nav button{
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-panel);
+    color: var(--fg-dim);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .carousel-nav button:hover{ border-color: var(--cyan); color: var(--cyan); }
 
   .card{
     background: var(--bg-panel);
@@ -354,7 +414,7 @@
 
   <section class="hero">
     <div class="eyebrow"><span class="prompt">$</span> whoami</div>
-    <h1>Ian —<br><span class="accent">Homelabber /</span> Backend Developer<span class="cursor"></span></h1>
+    <h1>Ian —<br><span class="accent role-wrap" id="typed-role"></span><span class="cursor"></span></h1>
     <p class="lede">
       Backend developer and homelabbing enthusiast focused on building efficient, scalable, and secure
       applications. I enjoy designing modular systems, exploring high-performance runtimes, and shipping
@@ -403,9 +463,13 @@
       <span class="tag">02</span>
       <h2>projects</h2>
       <div class="rule"></div>
+      <div class="view-toggle">
+        <button type="button" id="view-default" class="active">default</button>
+        <button type="button" id="view-carousel">carousel</button>
+      </div>
     </div>
 
-    <div class="projects">
+    <div class="projects" id="projects-container">
 
       <div class="card">
         <div class="shot">
@@ -459,7 +523,7 @@
         </div>
       </div>
 
-      <div class="card">
+          <div class="card">
         <div class="shot">
           <img src="assets/screenshots/project-5.png" alt="Project 5 screenshot">
         </div>
@@ -472,8 +536,7 @@
         </div>
       </div>
       
-
-      <!-- 
+ <!-- 
       <div class="card">
         <div class="shot">
           <img src="assets/screenshots/project-5.png" alt="Project 5 screenshot">
@@ -487,8 +550,11 @@
         </div>
       </div>
       -->
+    </div>
 
-      
+    <div class="carousel-nav" id="carousel-nav">
+      <button type="button" id="carousel-prev">‹</button>
+      <button type="button" id="carousel-next">›</button>
     </div>
   </section>
 
@@ -532,6 +598,87 @@
   </footer>
 
 </div>
+
+<script>
+  // ---------- typing / deleting role animation ----------
+  (function(){
+    const roles = ["Homelabber", "UI/UX Designer", "Backend Developer", "Solo Dev", ];
+    const el = document.getElementById('typed-role');
+    let roleIndex = 0, charIndex = 0, deleting = false;
+
+    const TYPE_SPEED = 80;
+    const DELETE_SPEED = 45;
+    const HOLD_TIME = 1400;
+    const GAP_TIME = 300;
+
+    function tick(){
+      const current = roles[roleIndex];
+
+      if(!deleting){
+        charIndex++;
+        el.textContent = current.slice(0, charIndex);
+        if(charIndex === current.length){
+          deleting = true;
+          setTimeout(tick, HOLD_TIME);
+          return;
+        }
+        setTimeout(tick, TYPE_SPEED);
+      } else {
+        charIndex--;
+        el.textContent = current.slice(0, charIndex);
+        if(charIndex === 0){
+          deleting = false;
+          roleIndex = (roleIndex + 1) % roles.length;
+          setTimeout(tick, GAP_TIME);
+          return;
+        }
+        setTimeout(tick, DELETE_SPEED);
+      }
+    }
+
+    tick();
+  })();
+
+  // ---------- projects view toggle (default grid / carousel) ----------
+  (function(){
+    const container = document.getElementById('projects-container');
+    const btnDefault = document.getElementById('view-default');
+    const btnCarousel = document.getElementById('view-carousel');
+    const nav = document.getElementById('carousel-nav');
+    const prev = document.getElementById('carousel-prev');
+    const next = document.getElementById('carousel-next');
+
+    function setView(mode){
+      if(mode === 'carousel'){
+        container.classList.add('carousel');
+        nav.classList.add('show');
+        btnCarousel.classList.add('active');
+        btnDefault.classList.remove('active');
+      } else {
+        container.classList.remove('carousel');
+        nav.classList.remove('show');
+        btnDefault.classList.add('active');
+        btnCarousel.classList.remove('active');
+      }
+    }
+
+    btnDefault.addEventListener('click', () => setView('default'));
+    btnCarousel.addEventListener('click', () => setView('carousel'));
+
+    prev.addEventListener('click', () => {
+      const card = container.querySelector('.card');
+      const step = card ? card.getBoundingClientRect().width + 20 : 300;
+      container.scrollBy({ left: -step, behavior: 'smooth' });
+    });
+    next.addEventListener('click', () => {
+      const card = container.querySelector('.card');
+      const step = card ? card.getBoundingClientRect().width + 20 : 300;
+      container.scrollBy({ left: step, behavior: 'smooth' });
+    });
+
+    setView('default'); // default view, matches current site behavior
+  })();
+</script>
 
 </body>
 </html>
