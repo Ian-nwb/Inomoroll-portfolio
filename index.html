@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ian // portfolio</title>
+<script>
+  (function(){
+    try{
+      if(localStorage.getItem('theme') === 'light'){
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    } catch(e){}
+  })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -22,6 +31,29 @@
     --green: #9ece6a;
     --yellow: #e0af68;
     --radius: 10px;
+    --grad1: rgba(187,154,247,0.10);
+    --grad2: rgba(125,207,255,0.07);
+    --shadow-color: rgba(0,0,0,0.6);
+    --img-bg: #111219;
+  }
+
+  html[data-theme="light"]{
+    --bg: #fbf7fb;
+    --bg-raised: #ffffff;
+    --bg-panel: #ffffff;
+    --border: #f0d9e8;
+    --fg: #5a4a58;
+    --fg-dim: #8f7d8c;
+    --fg-mute: #b8a3b4;
+    --purple: #d99ec2;
+    --cyan: #7ec8e3;
+    --pink: #f7a8c4;
+    --green: #8fc9a9;
+    --yellow: #f0c987;
+    --grad1: rgba(217,158,194,0.16);
+    --grad2: rgba(126,200,227,0.14);
+    --shadow-color: rgba(180,150,170,0.25);
+    --img-bg: #fdf6fa;
   }
 
   *{ box-sizing: border-box; }
@@ -31,12 +63,13 @@
     margin:0;
     background: var(--bg);
     background-image:
-      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(187,154,247,0.10), transparent 60%),
-      radial-gradient(ellipse 700px 500px at 90% 10%, rgba(125,207,255,0.07), transparent 60%);
+      radial-gradient(ellipse 900px 500px at 15% -10%, var(--grad1), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 90% 10%, var(--grad2), transparent 60%);
     color: var(--fg);
     font-family: 'JetBrains Mono', monospace;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    transition: background-color .25s ease, color .25s ease;
   }
 
   h1,h2,h3, .display{
@@ -59,7 +92,7 @@
     top: 0;
     z-index: 20;
     backdrop-filter: blur(10px);
-    background: rgba(26,27,38,0.75);
+    background: color-mix(in srgb, var(--bg) 75%, transparent);
     border-bottom: 1px solid var(--border);
   }
   .topbar-inner{
@@ -89,13 +122,39 @@
   }
   .nav-links a:hover{ color: var(--cyan); }
 
+  .theme-toggle{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    margin-left: 22px;
+    padding-left: 22px;
+    border-left: 1px solid var(--border);
+  }
+  .theme-toggle button{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    line-height: 1;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    color: var(--fg-dim);
+    border-radius: 6px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition: border-color .15s ease, color .15s ease, transform .15s ease;
+  }
+  .theme-toggle button:hover{ border-color: var(--purple); color: var(--purple); transform: translateY(-1px); }
+
   /* ---------- terminal chrome, the signature element ---------- */
   .term{
     background: var(--bg-panel);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
-    box-shadow: 0 20px 60px -20px rgba(0,0,0,0.6);
+    box-shadow: 0 20px 60px -20px var(--shadow-color);
   }
   .term-head{
     display:flex;
@@ -320,7 +379,7 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
-    background: #111219;
+    background: var(--img-bg);
     display: block;
   }
   .shot .frame-icon{
@@ -333,7 +392,7 @@
     left: 12px;
     font-size: 11px;
     color: var(--fg-mute);
-    background: rgba(26,27,38,0.6);
+    background: color-mix(in srgb, var(--bg) 60%, transparent);
     padding: 3px 8px;
     border-radius: 5px;
     border: 1px dashed var(--border);
@@ -362,6 +421,105 @@
     padding: 2px 7px;
     border-radius: 5px;
   }
+
+  /* ---------- skills (cat stack.json) ---------- */
+  .json-pre{
+    margin:0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .json-punc{ color: var(--fg-mute); }
+  .json-key{ color: var(--cyan); }
+  .json-str{ color: var(--green); }
+  .json-num{ color: var(--yellow); }
+
+  /* ---------- experience (git log) ---------- */
+  .commit{
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .commit:last-child{ border-bottom: none; padding-bottom: 0; }
+  .commit:first-child{ padding-top: 0; }
+  .commit-line{
+    font-size: 13.5px;
+    margin-bottom: 4px;
+  }
+  .commit-hash{ color: var(--yellow); }
+  .commit-msg{ color: var(--fg); font-weight: 500; }
+  .commit-meta{
+    font-size: 12px;
+    color: var(--fg-mute);
+    margin-bottom: 8px;
+  }
+  .commit-meta .commit-branch{ color: var(--purple); }
+  .commit-body{
+    font-size: 13px;
+    color: var(--fg-dim);
+    padding-left: 4px;
+    border-left: 2px solid var(--border);
+  }
+  .commit-body div{ margin-bottom: 4px; }
+  .commit-body div:last-child{ margin-bottom: 0; }
+  .commit-body .plus{ color: var(--green); }
+
+  /* ---------- project modal / lightbox ---------- */
+  .modal-overlay{
+    position: fixed;
+    inset: 0;
+    background: color-mix(in srgb, var(--bg) 55%, transparent);
+    backdrop-filter: blur(6px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .18s ease;
+  }
+  .modal-overlay.show{ opacity: 1; pointer-events: auto; }
+  .modal{
+    width: min(640px, 100%);
+    max-height: 86vh;
+    display:flex;
+    flex-direction: column;
+    transform: translateY(10px) scale(0.98);
+    transition: transform .18s ease;
+  }
+  .modal-overlay.show .modal{ transform: translateY(0) scale(1); }
+  .modal-close{
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--fg-mute);
+    border-radius: 6px;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    line-height:1;
+    cursor: pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .modal-close:hover{ color: var(--pink); border-color: var(--pink); }
+  .modal-body{
+    overflow-y: auto;
+    padding: 22px 26px 26px;
+  }
+  .modal-shot{
+    aspect-ratio: 16/10;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--img-bg);
+    margin-bottom: 18px;
+  }
+  .modal-shot img{ width:100%; height:100%; object-fit: contain; display:block; }
+  .modal-body h3{ font-size: 18px; margin-bottom: 10px; }
+  .modal-body p{ font-size: 13.5px; color: var(--fg-dim); margin: 0 0 16px; }
 
   /* ---------- contact ---------- */
   .contact-grid{
@@ -404,8 +562,14 @@
   <div class="topbar-inner">
     <div class="brand">ian<span>@tree</span></div>
     <div class="nav-links">
+      <a href="#skills">skills</a>
+      <a href="#experience">experience</a>
+      <a href="#education">education</a>
       <a href="#projects">projects</a>
       <a href="#contact">contact</a>
+    </div>
+    <div class="theme-toggle">
+      <button type="button" id="theme-toggle-btn" aria-label="Toggle theme" title="Toggle theme">🌙</button>
     </div>
   </div>
 </div>
@@ -420,23 +584,6 @@
       applications. I enjoy designing modular systems, exploring high-performance runtimes, and shipping
       optimized templates and boilerplates for small-scale projects.
     </p>
-    <div class="stack-row">
-      <span class="chip">Go</span>
-      <span class="chip">Rust</span>
-      <span class="chip">Bun</span>
-      <span class="chip">Elysia</span>
-      <span class="chip">Express</span>
-      <span class="chip">TypeScript</span>
-      <span class="chip">React / Vite</span>
-      <span class="chip">Flutter</span>
-      <span class="chip">PostgreSQL</span>
-      <span class="chip">MongoDB</span>
-      <span class="chip">Redis / Valkey</span>
-      <span class="chip">Prisma</span>
-      <span class="chip">Docker</span>
-      <span class="chip">Nginx</span>
-      <span class="chip">Linux</span>
-    </div>
     <div class="term" style="margin-top:26px;">
       <div class="term-head">
         <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
@@ -458,9 +605,103 @@
     </div>
   </section>
 
-  <section id="projects">
+  <section id="skills">
     <div class="section-head">
       <span class="tag">02</span>
+      <h2>skills</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="term">
+      <div class="term-head">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <div class="term-title">~/skills $ cat stack.json</div>
+      </div>
+      <div class="term-body">
+        <pre class="json-pre"><span class="json-punc">{</span>
+  <span class="json-key">"languages"</span><span class="json-punc">:</span> [<span class="json-str">"Go"</span>, <span class="json-str">"Python"</span>, <span class="json-str">"JavaScript"</span>, <span class="json-str">"TypeScript"</span>]<span class="json-punc">,</span>
+  <span class="json-key">"runtimes"</span><span class="json-punc">:</span> [<span class="json-str">"Bun"</span>, <span class="json-str">"Node.js"</span>]<span class="json-punc">,</span>
+  <span class="json-key">"backend"</span><span class="json-punc">:</span> [<span class="json-str">"Elysia"</span>, <span class="json-str">"Express"</span>, <span class="json-str">"Laravel"</span>, <span class="json-str">"C#"</span>]<span class="json-punc">,</span>
+  <span class="json-key">"frontend"</span><span class="json-punc">:</span> [<span class="json-str">"React"</span>, <span class="json-str">"Vite"</span>, <span class="json-str">"SolidJS"</span>]<span class="json-punc">,</span>
+  <span class="json-key">"mobile"</span><span class="json-punc">:</span> [<span class="json-str">"Flutter"</span>]<span class="json-punc">,</span>
+  <span class="json-key">"databases"</span><span class="json-punc">:</span> [<span class="json-str">"PostgreSQL"</span>, <span class="json-str">"MongoDB"</span>, <span class="json-str">"Redis / Valkey"</span>]<span class="json-punc">,</span>
+  <span class="json-key">"orm"</span><span class="json-punc">:</span> [<span class="json-str">"Prisma"</span>, <span class="json-str">"Mongoose"</span>, <span class="json-str">"Eloquent"</span>]<span class="json-punc">,</span>
+  <span class="json-key">"infra"</span><span class="json-punc">:</span> [<span class="json-str">"Docker"</span>, <span class="json-str">"Nginx"</span>, <span class="json-str">"Linux"</span>]<span class="json-punc">,</span>
+  <span class="json-key">"interests"</span><span class="json-punc">:</span> [<span class="json-str">"homelabbing"</span>, <span class="json-str">"cybersecurity"</span>]
+<span class="json-punc">}</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="experience">
+    <div class="section-head">
+      <span class="tag">03</span>
+      <h2>experience</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="term">
+      <div class="term-head">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <div class="term-title">~/experience $ git log --stat</div>
+      </div>
+      <div class="term-body">
+
+        <div class="commit">
+          <div class="commit-line"><span class="commit-hash">a1c9f3e</span> <span class="commit-msg">Web Developer — Cornersteel Systems Corporation</span></div>
+          <div class="commit-meta">Date: Feb 2025 – Apr 2025 · <span class="commit-branch">Internship, Mandaluyong NCR, On-site</span></div>
+          <div class="commit-body">
+            <div><span class="plus">+</span> contributed to web development tasks, applying core web technologies in a professional, on-site team environment</div>
+          </div>
+        </div>
+
+        <div class="commit">
+          <div class="commit-line"><span class="commit-hash">7e4b210</span> <span class="commit-msg">UI/UX Designer — Pixel8 Web Solutions &amp; Consultancy Inc.</span></div>
+          <div class="commit-meta">Date: Jul 2024 – Sep 2024 · <span class="commit-branch">Internship, Remote</span></div>
+          <div class="commit-body">
+            <div><span class="plus">+</span> designed user interfaces and experiences using Adobe XD, applying user-centered design principles to client projects</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="education">
+    <div class="section-head">
+      <span class="tag">04</span>
+      <h2>education</h2>
+      <div class="rule"></div>
+    </div>
+    <div class="term">
+      <div class="term-head">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <div class="term-title">~/education $ cat education.json</div>
+      </div>
+      <div class="term-body">
+        <pre class="json-pre"><span class="json-punc">[</span>
+  <span class="json-punc">{</span>
+    <span class="json-key">"school"</span><span class="json-punc">:</span> <span class="json-str">"National University"</span><span class="json-punc">,</span>
+    <span class="json-key">"credential"</span><span class="json-punc">:</span> <span class="json-str">"Bachelor's Degree, Information Technology"</span><span class="json-punc">,</span>
+    <span class="json-key">"focus"</span><span class="json-punc">:</span> <span class="json-str">"Web Development & Mobile Application Development"</span><span class="json-punc">,</span>
+    <span class="json-key">"dates"</span><span class="json-punc">:</span> <span class="json-str">"Oct 2025 – Mar 2028"</span>
+  <span class="json-punc">}</span><span class="json-punc">,</span>
+  <span class="json-punc">{</span>
+    <span class="json-key">"school"</span><span class="json-punc">:</span> <span class="json-str">"Polytechnic University of the Philippines"</span><span class="json-punc">,</span>
+    <span class="json-key">"credential"</span><span class="json-punc">:</span> <span class="json-str">"Diploma, Information Technology"</span><span class="json-punc">,</span>
+    <span class="json-key">"dates"</span><span class="json-punc">:</span> <span class="json-str">"2022 – 2025"</span>
+  <span class="json-punc">}</span><span class="json-punc">,</span>
+  <span class="json-punc">{</span>
+    <span class="json-key">"school"</span><span class="json-punc">:</span> <span class="json-str">"Probex School"</span><span class="json-punc">,</span>
+    <span class="json-key">"credential"</span><span class="json-punc">:</span> <span class="json-str">"Senior High School, General Academic Strand"</span><span class="json-punc">,</span>
+    <span class="json-key">"dates"</span><span class="json-punc">:</span> <span class="json-str">"2020 – 2022"</span>
+  <span class="json-punc">}</span>
+<span class="json-punc">]</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="section-head">
+      <span class="tag">05</span>
       <h2>projects</h2>
       <div class="rule"></div>
       <div class="view-toggle">
@@ -560,7 +801,7 @@
 
   <section id="contact">
     <div class="section-head">
-      <span class="tag">03</span>
+      <span class="tag">06</span>
       <h2>contact</h2>
       <div class="rule"></div>
     </div>
@@ -599,7 +840,101 @@
 
 </div>
 
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal term">
+    <div class="term-head">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <div class="term-title" id="modal-title-bar">~/projects $ view</div>
+      <button type="button" class="modal-close" id="modal-close" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-shot"><img id="modal-img" src="" alt=""></div>
+      <h3 id="modal-title"></h3>
+      <p id="modal-desc"></p>
+      <div class="card-tags" id="modal-tags"></div>
+    </div>
+  </div>
+</div>
+
 <script>
+  // ---------- theme toggle (Tokyo Night <-> Cinnamoroll light) ----------
+  (function(){
+    const btn = document.getElementById('theme-toggle-btn');
+    const root = document.documentElement;
+
+    function applyTheme(theme){
+      if(theme === 'light'){
+        root.setAttribute('data-theme', 'light');
+        btn.textContent = '☁️';
+      } else {
+        root.removeAttribute('data-theme');
+        btn.textContent = '🌙';
+      }
+    }
+
+    const saved = localStorage.getItem('theme') || 'dark';
+    applyTheme(saved);
+
+    btn.addEventListener('click', () => {
+      const current = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+      const next = current === 'light' ? 'dark' : 'light';
+      localStorage.setItem('theme', next);
+      applyTheme(next);
+    });
+  })();
+
+  // ---------- project card modal / lightbox ----------
+  (function(){
+    const overlay = document.getElementById('modal-overlay');
+    const modalImg = document.getElementById('modal-img');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
+    const modalTags = document.getElementById('modal-tags');
+    const modalTitleBar = document.getElementById('modal-title-bar');
+    const closeBtn = document.getElementById('modal-close');
+
+    function openModal(card){
+      const img = card.querySelector('img');
+      const title = card.querySelector('h3');
+      const desc = card.querySelector('p');
+      const tags = card.querySelectorAll('.card-tags span');
+
+      modalImg.src = img ? img.src : '';
+      modalImg.alt = img ? img.alt : '';
+      modalTitle.textContent = title ? title.textContent : '';
+      modalDesc.textContent = desc ? desc.textContent : '';
+      modalTitleBar.textContent = '~/projects $ view "' + (title ? title.textContent : '') + '"';
+
+      modalTags.innerHTML = '';
+      tags.forEach(t => {
+        const span = document.createElement('span');
+        span.textContent = t.textContent;
+        modalTags.appendChild(span);
+      });
+
+      overlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(){
+      overlay.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('.card').forEach(card => {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', () => openModal(card));
+    });
+
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => {
+      if(e.target === overlay) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape' && overlay.classList.contains('show')) closeModal();
+    });
+  })();
+
   // ---------- typing / deleting role animation ----------
   (function(){
     const roles = ["Homelabber", "UI/UX Designer", "Backend Developer", "Solo Dev", ];
